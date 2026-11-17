@@ -31,6 +31,8 @@ public class EquipamentoDAO {
                 ps.setInt(7, ((Projetor) e).getLuminosidade());
             }
             ps.executeUpdate();
+        } catch (java.sql.SQLIntegrityConstraintViolationException ex) {
+            throw new IllegalArgumentException("Já existe equipamento com o patrimônio " + e.getPatrimonio() + ".");
         }
     }
 
@@ -68,7 +70,13 @@ public class EquipamentoDAO {
     }
 
     public boolean existe(int patrimonio) throws SQLException {
-        return buscarPorPatrimonio(patrimonio) != null;
+        String sql = "SELECT 1 FROM equipamento WHERE patrimonio = ?";
+        try (Connection con = Conexao.getConexao(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, patrimonio);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
     }
 
     public void atualizar(Equipamento e) throws SQLException {
@@ -86,7 +94,8 @@ public class EquipamentoDAO {
                 ps.setInt(5, ((Projetor) e).getLuminosidade());
             }
             ps.setInt(6, e.getPatrimonio());
-            ps.executeUpdate();
+            int linhas = ps.executeUpdate();
+            if (linhas == 0) throw new IllegalArgumentException("Nenhum registro foi alterado (patrimônio inexistente).");
         }
     }
 
@@ -94,10 +103,12 @@ public class EquipamentoDAO {
         String sql = "DELETE FROM equipamento WHERE patrimonio = ?";
         try (Connection con = Conexao.getConexao(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, patrimonio);
-            ps.executeUpdate();
+            int linhas = ps.executeUpdate();
+            if (linhas == 0) throw new IllegalArgumentException("Nenhum registro foi excluído (patrimônio inexistente).");
         }
     }
 
+  
     private Equipamento montar(ResultSet rs) throws SQLException {
         int pat = rs.getInt("patrimonio");
         String desc = rs.getString("descricao");

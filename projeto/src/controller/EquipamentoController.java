@@ -11,9 +11,14 @@ import java.util.List;
 public class EquipamentoController {
     public static final String[] SITUACOES = {"Disponível", "Em uso", "Em manutenção"};
 
-    private final EquipamentoDAO dao = new EquipamentoDAO();
+    private final EquipamentoDAO dao;
 
-    // ---------- Regras de negócio ----------
+    public EquipamentoController() { this(new EquipamentoDAO()); }
+
+   
+    public EquipamentoController(EquipamentoDAO dao) { this.dao = dao; }
+
+   
     private void validarTexto(String valor, String campo) {
         if (valor == null || valor.trim().isEmpty())
             throw new IllegalArgumentException(campo + " não pode estar vazio.");
@@ -28,7 +33,7 @@ public class EquipamentoController {
         if (valor <= 0) throw new IllegalArgumentException(campo + " deve ser um número inteiro maior que zero.");
     }
 
-    // ---------- RF01 ----------
+   
     public void cadastrarComputador(int patrimonio, String descricao, String lab, String situacao, int ram)
             throws SQLException {
         validarPositivo(patrimonio, "Patrimônio");
@@ -51,21 +56,20 @@ public class EquipamentoController {
         dao.inserir(new Projetor(patrimonio, descricao.trim(), lab.trim(), situacao, lumens));
     }
 
-    // ---------- RF02 ----------
+   
     public List<Equipamento> listarTodos() throws SQLException { return dao.listarTodos(); }
 
-    // ---------- RF03 ----------
+   
     public Equipamento pesquisar(int patrimonio) throws SQLException {
-        validarPositivo(patrimonio, "Patrimônio");
         Equipamento e = dao.buscarPorPatrimonio(patrimonio);
         if (e == null) throw new IllegalArgumentException("Nenhum equipamento encontrado com o patrimônio " + patrimonio + ".");
         return e;
     }
 
-    // ---------- RF04 ----------
+  
     public void alterar(int patrimonio, String descricao, String lab, String situacao, int atributoEspecifico)
             throws SQLException {
-        Equipamento atual = pesquisar(patrimonio);
+        Equipamento atual = pesquisar(patrimonio); // confirma que o registro existe
         validarTexto(descricao, "Descrição");
         validarTexto(lab, "Laboratório");
         validarSituacao(situacao);
@@ -77,13 +81,13 @@ public class EquipamentoController {
         }
     }
 
-    // ---------- RF05 ----------
+   
     public void excluir(int patrimonio) throws SQLException {
-        pesquisar(patrimonio);
+        pesquisar(patrimonio); // confirma que existe
         dao.excluir(patrimonio);
     }
 
-    // ---------- RF06 ----------
+   
     public List<Equipamento> listarPorLaboratorio(String lab) throws SQLException {
         validarTexto(lab, "Laboratório");
         return dao.listarPorLaboratorio(lab.trim());

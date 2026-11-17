@@ -5,10 +5,6 @@ import model.Computador;
 import model.Equipamento;
 
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import java.awt.Dimension;
-import java.sql.SQLException;
 import java.util.List;
 
 public class EquipamentoView {
@@ -37,18 +33,20 @@ public class EquipamentoView {
                 erro("Digite apenas números inteiros nos campos numéricos.");
             } catch (IllegalArgumentException ex) {
                 erro(ex.getMessage());
-            } catch (SQLException ex) {
+            } catch (java.sql.SQLException ex) {
                 erro("Erro de banco de dados: " + ex.getMessage());
             } catch (CancelException ex) {
-                // Operação cancelada pelo usuário
+                // usuário cancelou a operação
             }
         }
     }
 
-    private static class CancelException extends RuntimeException {}
+    private static class CancelException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+    }
 
-    // ---------- Operações ----------
-    private void cadastrarComputador() throws SQLException {
+   
+    private void cadastrarComputador() throws java.sql.SQLException {
         int pat = lerInt("Número de patrimônio:");
         String desc = lerTexto("Descrição:");
         String lab = lerTexto("Laboratório:");
@@ -58,7 +56,7 @@ public class EquipamentoView {
         info("Computador cadastrado com sucesso!");
     }
 
-    private void cadastrarProjetor() throws SQLException {
+    private void cadastrarProjetor() throws java.sql.SQLException {
         int pat = lerInt("Número de patrimônio:");
         String desc = lerTexto("Descrição:");
         String lab = lerTexto("Laboratório:");
@@ -68,12 +66,12 @@ public class EquipamentoView {
         info("Projetor cadastrado com sucesso!");
     }
 
-    private void pesquisar() throws SQLException {
+    private void pesquisar() throws java.sql.SQLException {
         int pat = lerInt("Número de patrimônio a pesquisar:");
         info(controller.pesquisar(pat).toString());
     }
 
-    private void alterar() throws SQLException {
+    private void alterar() throws java.sql.SQLException {
         int pat = lerInt("Patrimônio do equipamento a alterar:");
         Equipamento atual = controller.pesquisar(pat);
         info("Registro atual:\n" + atual);
@@ -86,7 +84,7 @@ public class EquipamentoView {
         info("Equipamento alterado com sucesso!");
     }
 
-    private void excluir() throws SQLException {
+    private void excluir() throws java.sql.SQLException {
         int pat = lerInt("Patrimônio do equipamento a excluir:");
         Equipamento e = controller.pesquisar(pat);
         int r = JOptionPane.showConfirmDialog(null, "Deseja realmente excluir?\n\n" + e,
@@ -99,23 +97,17 @@ public class EquipamentoView {
         }
     }
 
-    private void listarPorLaboratorio() throws SQLException {
+    private void listarPorLaboratorio() throws java.sql.SQLException {
         String lab = lerTexto("Nome do laboratório:");
         mostrarLista(controller.listarPorLaboratorio(lab), "Nenhum equipamento encontrado nesse laboratório.");
     }
 
-    // ---------- Auxiliares ----------
+    
     private void mostrarLista(List<Equipamento> lista, String vazio) {
         if (lista.isEmpty()) { info(vazio); return; }
         StringBuilder sb = new StringBuilder();
         for (Equipamento e : lista) sb.append(e).append("\n");
-
-        JTextArea textArea = new JTextArea(sb.toString());
-        textArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(680, 260));
-
-        JOptionPane.showMessageDialog(null, scrollPane, "Equipamentos", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, sb.toString(), "Equipamentos", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private String lerTexto(String msg) {
