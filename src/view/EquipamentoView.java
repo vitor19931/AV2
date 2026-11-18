@@ -1,15 +1,14 @@
 package view;
-
 import controller.EquipamentoController;
 import model.Computador;
 import model.Equipamento;
-
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import java.util.List;
 
 public class EquipamentoView {
     private final EquipamentoController controller = new EquipamentoController();
-
     public void iniciar() {
         String menu = "SISTEMA DE CONTROLE DE EQUIPAMENTOS\n\n"
                 + "1 - Cadastrar computador\n2 - Cadastrar projetor\n3 - Listar todos\n"
@@ -36,16 +35,12 @@ public class EquipamentoView {
             } catch (java.sql.SQLException ex) {
                 erro("Erro de banco de dados: " + ex.getMessage());
             } catch (CancelException ex) {
-                // usuário cancelou a operação
             }
         }
     }
-
     private static class CancelException extends RuntimeException {
         private static final long serialVersionUID = 1L;
     }
-
-   
     private void cadastrarComputador() throws java.sql.SQLException {
         int pat = lerInt("Número de patrimônio:");
         String desc = lerTexto("Descrição:");
@@ -55,7 +50,6 @@ public class EquipamentoView {
         controller.cadastrarComputador(pat, desc, lab, sit, ram);
         info("Computador cadastrado com sucesso!");
     }
-
     private void cadastrarProjetor() throws java.sql.SQLException {
         int pat = lerInt("Número de patrimônio:");
         String desc = lerTexto("Descrição:");
@@ -65,12 +59,10 @@ public class EquipamentoView {
         controller.cadastrarProjetor(pat, desc, lab, sit, lumens);
         info("Projetor cadastrado com sucesso!");
     }
-
     private void pesquisar() throws java.sql.SQLException {
         int pat = lerInt("Número de patrimônio a pesquisar:");
         info(controller.pesquisar(pat).toString());
     }
-
     private void alterar() throws java.sql.SQLException {
         int pat = lerInt("Patrimônio do equipamento a alterar:");
         Equipamento atual = controller.pesquisar(pat);
@@ -83,7 +75,6 @@ public class EquipamentoView {
         controller.alterar(pat, desc, lab, sit, esp);
         info("Equipamento alterado com sucesso!");
     }
-
     private void excluir() throws java.sql.SQLException {
         int pat = lerInt("Patrimônio do equipamento a excluir:");
         Equipamento e = controller.pesquisar(pat);
@@ -96,37 +87,35 @@ public class EquipamentoView {
             info("Exclusão cancelada.");
         }
     }
-
     private void listarPorLaboratorio() throws java.sql.SQLException {
         String lab = lerTexto("Nome do laboratório:");
         mostrarLista(controller.listarPorLaboratorio(lab), "Nenhum equipamento encontrado nesse laboratório.");
     }
-
-    
     private void mostrarLista(List<Equipamento> lista, String vazio) {
         if (lista.isEmpty()) { info(vazio); return; }
         StringBuilder sb = new StringBuilder();
         for (Equipamento e : lista) sb.append(e).append("\n");
-        JOptionPane.showMessageDialog(null, sb.toString(), "Equipamentos", JOptionPane.INFORMATION_MESSAGE);
+        JTextArea area = new JTextArea(sb.toString(), 15, 80);
+        area.setEditable(false);
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+        area.setCaretPosition(0);
+        JOptionPane.showMessageDialog(null, new JScrollPane(area), "Equipamentos", JOptionPane.INFORMATION_MESSAGE);
     }
-
     private String lerTexto(String msg) {
         String s = JOptionPane.showInputDialog(null, msg);
         if (s == null) throw new CancelException();
         return s;
     }
-
     private int lerInt(String msg) {
         return Integer.parseInt(lerTexto(msg).trim());
     }
-
     private String lerSituacao() {
         Object s = JOptionPane.showInputDialog(null, "Situação:", "Situação", JOptionPane.QUESTION_MESSAGE,
                 null, EquipamentoController.SITUACOES, EquipamentoController.SITUACOES[0]);
         if (s == null) throw new CancelException();
         return s.toString();
     }
-
     private void info(String msg) { JOptionPane.showMessageDialog(null, msg, "Informação", JOptionPane.INFORMATION_MESSAGE); }
     private void erro(String msg) { JOptionPane.showMessageDialog(null, msg, "Erro", JOptionPane.ERROR_MESSAGE); }
 }
