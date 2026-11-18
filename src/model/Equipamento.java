@@ -5,7 +5,7 @@ public abstract class Equipamento {
     private String descricao;
     private String laboratorio;
     private String situacao;
-
+    
     public Equipamento(int patrimonio, String descricao, String laboratorio, String situacao) {
         this.patrimonio = patrimonio;
         this.descricao = descricao;
@@ -22,6 +22,7 @@ public abstract class Equipamento {
     public void setSituacao(String situacao) { this.situacao = situacao; }
 
     public abstract String getTipo();
+
     public abstract String getAtributoEspecifico();
 
     @Override
