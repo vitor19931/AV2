@@ -1,13 +1,11 @@
 package model;
-
 public class Computador extends Equipamento {
-    private int memoriaRAM; // em GB
+    private int memoriaRAM; 
 
     public Computador(int patrimonio, String descricao, String laboratorio, String situacao, int memoriaRAM) {
         super(patrimonio, descricao, laboratorio, situacao);
         this.memoriaRAM = memoriaRAM;
     }
-
     public int getMemoriaRAM() { return memoriaRAM; }
     public void setMemoriaRAM(int memoriaRAM) { this.memoriaRAM = memoriaRAM; }
 
