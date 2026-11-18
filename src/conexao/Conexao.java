@@ -1,26 +1,23 @@
 package conexao;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-
 public class Conexao {
     private static final String URL_PADRAO =
-            "jdbc:mysql://localhost:3306/laboratorio_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+            "jdbc:mysql://localhost:3306/laboratorio_db"
+            + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8";
+    private static final String USUARIO_PADRAO = "root";
+    private static final String SENHA_PADRAO = "";
 
-    private static String ler(String nome) throws SQLException {
+    private static String ler(String nome, String padrao) {
         String v = System.getenv(nome);
-        if (v == null || v.isEmpty())
-            throw new SQLException("Variável de ambiente " + nome + " não definida. Veja o README.");
-        return v;
+        return (v == null || v.isEmpty()) ? padrao : v;
     }
-
     public static Connection getConexao() throws SQLException {
-        String url = System.getenv("DB_URL");
-        if (url == null || url.isEmpty()) url = URL_PADRAO;
-        String usuario = ler("DB_USUARIO");
-        String senha = ler("DB_SENHA");
+        String url = ler("DB_URL", URL_PADRAO);
+        String usuario = ler("DB_USUARIO", USUARIO_PADRAO);
+        String senha = ler("DB_SENHA", SENHA_PADRAO);
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
